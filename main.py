@@ -8,27 +8,17 @@ solutions = []
 class State:
     target = 0
     numbers = [0,0,0,0,0,0]
-    operation_count = 0
+    operations = []
 
-    def save_solution(self, f, s):
+    def save_solution(self):
         global solutions
-        r = []
-        r = r + [f.numbers]
-        r = r + [s.numbers]
-        p = prevs[s]
-        while p:
-            r = r + [p.numbers]
-            if p in prevs:
-                p = prevs[p]
-            else:
-                p = None
-        solutions = solutions + [r]
+        solutions = solutions + [self.operations]
 
-    def __init__(self, vals, target, operation_count):
+    def __init__(self, vals, target, operations):
         self.numbers = vals
         self.numbers.sort()
         self.target = target
-        self.operation_count = operation_count
+        self.operations = operations
 
     def next_states(self):
         result = set({})
@@ -38,37 +28,37 @@ class State:
             nums.remove(opt[0])
             nums.remove(opt[1])
 
-            s1 = State(nums + [int(opt[0]+opt[1])], self.target, self.operation_count + 1)
-            s2 = State(nums + [int(opt[0]-opt[1])], self.target, self.operation_count + 1)
-            s3 = State(nums + [int(opt[0]*opt[1])], self.target, self.operation_count + 1)
+            s1 = State(nums + [int(opt[0]+opt[1])], self.target, self.operations + [str(opt[0])+'+'+str(opt[1])])
+            if opt[0] - opt[1] > 0:
+                s2 = State(nums + [int(opt[0]-opt[1])], self.target, self.operations + [str(opt[0])+'-'+str(opt[1])])
+            else:
+                s2 = None
+            s3 = State(nums + [int(opt[0]*opt[1])], self.target, self.operations + [str(opt[0])+'*'+str(opt[1])])
             if opt[1] != 0 and opt[0]%opt[1] == 0:
-                s4 = State(nums + [int(opt[0]/opt[1])], self.target, self.operation_count + 1)
+                s4 = State(nums + [int(opt[0]/opt[1])], self.target, self.operations + [str(opt[0])+'/'+str(opt[1])])
             else:
                 s4 = None
             
-            if len(s1.numbers)==1:
-                if s1.numbers[0] == self.target:
-                    self.save_solution(s1,self)
-            else:
+            if self.target in s1.numbers:
+                s1.save_solution()
+            elif len(s1.numbers)>1:
                 result = result.union(set({s1}))
 
-            if len(s2.numbers)==1:
-                if s2.numbers[0] == self.target:
-                    self.save_solution(s2,self)
-            else:
-                result = result.union(set({s2}))
+            if s2:
+                if self.target in s2.numbers:
+                    s2.save_solution()
+                elif len(s2.numbers)>1:
+                    result = result.union(set({s2}))
 
-            if len(s3.numbers)==1:
-                if s3.numbers[0] == self.target:
-                    self.save_solution(s3,self)
-            else:
+            if self.target in s3.numbers:
+                s3.save_solution()
+            elif len(s3.numbers)>1:
                 result = result.union(set({s3}))
 
             if s4:
-                if len(s4.numbers)==1:
-                    if s4.numbers[0] == self.target:
-                        self.save_solution(s4,self)
-                else:
+                if self.target in s4.numbers:
+                    s4.save_solution()
+                elif len(s4.numbers)>1:
                     result = result.union(set({s4}))
 
         for r in result:
@@ -76,9 +66,8 @@ class State:
         return result
 
 
-    
-
-start = State([1,5,6,2,50,25], 813, 0)
+# start = State([1,5,6,2,50,25], 813, [])
+start = State([25,3,7,8,6,9], 223, [])
 
 all_states = set({start})
 
@@ -88,5 +77,5 @@ while len(all_states) > 0:
     next = c_s.next_states()
     all_states = all_states.union(set(next))
 
-for s in solutions:
-    print(len(s)-1, s)
+for sol in solutions:
+    print(len(sol), start.target, sol)
