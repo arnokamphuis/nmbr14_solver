@@ -1,6 +1,7 @@
 from collections import deque
 from copy import deepcopy
 from itertools import combinations 
+from collections import defaultdict
 
 prevs = {}
 solutions = []
@@ -12,7 +13,8 @@ class State:
 
     def save_solution(self):
         global solutions
-        solutions = solutions + [self.operations]
+        if self.operations not in solutions:
+            solutions = solutions + [self.operations]
 
     def __init__(self, vals, target, operations):
         self.numbers = vals
@@ -28,14 +30,17 @@ class State:
             nums.remove(opt[0])
             nums.remove(opt[1])
 
-            s1 = State(nums + [int(opt[0]+opt[1])], self.target, self.operations + [str(opt[0])+'+'+str(opt[1])])
-            if opt[0] - opt[1] > 0:
-                s2 = State(nums + [int(opt[0]-opt[1])], self.target, self.operations + [str(opt[0])+'-'+str(opt[1])])
+            opt0 = max(opt[0], opt[1])
+            opt1 = min(opt[0], opt[1])
+
+            s1 = State(nums + [int(opt0+opt1)], self.target, self.operations + [str(opt0)+'+'+str(opt1)])
+            if opt0 != opt1:
+                s2 = State(nums + [int(opt0-opt1)], self.target, self.operations + [str(opt0)+'-'+str(opt1)])
             else:
                 s2 = None
-            s3 = State(nums + [int(opt[0]*opt[1])], self.target, self.operations + [str(opt[0])+'*'+str(opt[1])])
-            if opt[1] != 0 and opt[0]%opt[1] == 0:
-                s4 = State(nums + [int(opt[0]/opt[1])], self.target, self.operations + [str(opt[0])+'/'+str(opt[1])])
+            s3 = State(nums + [int(opt0*opt1)], self.target, self.operations + [str(opt0)+'*'+str(opt1)])
+            if opt1 != 0 and opt0%opt1 == 0:
+                s4 = State(nums + [int(opt0/opt1)], self.target, self.operations + [str(opt0)+'/'+str(opt1)])
             else:
                 s4 = None
             
@@ -67,7 +72,23 @@ class State:
 
 
 # start = State([1,5,6,2,50,25], 813, [])
-start = State([25,3,7,8,6,9], 223, [])
+# start = State([25,3,7,8,6,9], 223, [])
+# start = State([4,7,2,9,100,50], 997, [])
+# start = State([6,8,2,50,8,8], 607, [])
+# start = State([2,4,50,6,6,8], 509, [])
+# start = State([50,4,50,6,6,8], 661, [])
+# start = State([1,3,6,2,25,10], 984, [])
+# start = State([6,2,6,7,25,50], 566, [])
+# start = State([5,7,2,8,10,100], 942, [])
+# start = State([5,7,2,8,75,100], 942, [])
+# start = State([1,3,3,6,7,25], 254, [])
+# start = State([1,3,3,7,10,50], 513, [])
+# start = State([2,6,6,8,10,25], 412, [])
+# start = State([1,3,25,8,9,25], 607, [])
+# start = State([2,9,7,10,7,25], 473, [])
+# start = State([8,8,9,3,25,75], 723, [])
+# start = State([1,3,8,9,9,25], 601, [])
+start = State([5,2,3,8,10,75], 872, [])
 
 all_states = set({start})
 
@@ -77,5 +98,11 @@ while len(all_states) > 0:
     next = c_s.next_states()
     all_states = all_states.union(set(next))
 
+counts = defaultdict(int)
 for sol in solutions:
+    counts[len(sol)] = counts[len(sol)] + 1
     print(len(sol), start.target, sol)
+
+print("== COUNTS ==")
+for k,v in counts.items():
+    print(k,v)
