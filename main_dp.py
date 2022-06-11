@@ -5,6 +5,7 @@ from collections import defaultdict
 
 prevs = {}
 solutions = []
+DP = {}
 
 class State:
     target = 0
@@ -22,8 +23,22 @@ class State:
         self.target = target
         self.operations = operations
 
+    def solve(self):
+        global DP
+        if str(self.operations) in DP:
+            return
+        ls, ns = self.next_states()
+        if len(ls) > 0:
+            for s in ls:
+                s.save_solution()
+            DP[str(self.operations)] = ls
+        else:
+            for s in ns:
+                s.solve()
+
     def next_states(self):
         result = set({})
+        local_solutions = set({})
         options = combinations(self.numbers, 2)
         for opt in options:
             nums = deepcopy(self.numbers)
@@ -45,30 +60,30 @@ class State:
                 s4 = None
             
             if self.target in s1.numbers:
-                s1.save_solution()
+                local_solutions = local_solutions.union(set({s1}))
             elif len(s1.numbers)>1:
                 result = result.union(set({s1}))
 
             if s2:
                 if self.target in s2.numbers:
-                    s2.save_solution()
+                    local_solutions = local_solutions.union(set({s2}))
                 elif len(s2.numbers)>1:
                     result = result.union(set({s2}))
 
             if self.target in s3.numbers:
-                s3.save_solution()
+                local_solutions = local_solutions.union(set({s3}))
             elif len(s3.numbers)>1:
                 result = result.union(set({s3}))
 
             if s4:
                 if self.target in s4.numbers:
-                    s4.save_solution()
+                    local_solutions = local_solutions.union(set({s4}))
                 elif len(s4.numbers)>1:
                     result = result.union(set({s4}))
 
         for r in result:
             prevs[r] = self
-        return result
+        return local_solutions, result
 
 
 # start = State([1,5,6,2,50,25], 813, [])
@@ -100,13 +115,7 @@ class State:
 start = State([9,6,10,3,8,100], 528, [])
 # start = State([6,6,2,8,50,75], 901, [])
 
-all_states = set({start})
-
-while len(all_states) > 0:
-    c_s = list(all_states).pop()
-    all_states.remove(c_s)
-    next = c_s.next_states()
-    all_states = all_states.union(set(next))
+start.solve()
 
 counts = defaultdict(int)
 for sol in solutions:
