@@ -114,18 +114,44 @@ old = [
     State([1,7,8,9,1,75], 654, []),
     State([10,2,5,3,7,10], 234, []),
     State([9,6,10,3,8,100], 528, []),
+    State([6,6,2,8,50,75], 901, []),
+    State([1,2,6,7,50,3], 323, []),
+    State([9,7,4,8,25,50], 850, []),
+    State([9,9,10,4,8,100], 543, []),
+    State([8,8,8,8,8,8], 264, []),
+    State([6,1,2,3,50,8], 476, []),
+    State([1,3,10,6,8,25], 818, []),
+    State([4,3,6,5,7,8], 612, []),
+    State([2,3,9,3,50,7], 722, []),
+    State([3,3,8,7,7,8], 394, []),
+    State([2,3,25,8,7,75], 911, []),
+    State([3,6,5,10,2,2], 161, []),
+    State([9,8,2,3,6,10], 523, []),
+    State([3,8,8,9,9,10], 526, []),
+    State([5,8,4,2,3,8], 181, []),
+    State([7,2,3,75,4,50], 458, []),
+    State([2,6,7,9,25,25], 804, []),
+    State([6,6,7,50,10,1], 298, []),
+    State([3,2,9,10,9,25], 782, []),
+    State([75,1,4,7,8,25], 322, []),
+    State([2,8,3,100,3,50], 651, []),
+    State([3,25,6,2,8,100], 933, []),
+    State([3,3,25,4,9,10], 538, []),
 ]
 
-start = State([6,6,2,8,50,75], 901, [])
+# set the start state to the last one in the old list
+start = old[-1]
 
-# old[12].solve()
+# solve from the start state using Dynamic Programming
 start.solve()
 
+# count and print all the solutions
 counts = defaultdict(int)
 for sol in solutions:
     counts[len(sol)] = counts[len(sol)] + 1
     print(len(sol), start.target, sol)
 
+# print the counts for the different calculation steps
 print("== COUNTS ==")
 for k,v in counts.items():
     print(k,v)
